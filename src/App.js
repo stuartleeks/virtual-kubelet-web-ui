@@ -5,21 +5,19 @@ import PodList from './PodList'
 import PodDetail from './PodDetail'
 
 // TODO need to parameterise this/pull from config
-const baseUrl = "http://localhost:5000"
 class App extends Component {
   state = {
+    baseUrl : "http://localhost:5000",
     pods: [],
     selectedPod: null
   };
   componentDidMount() {
     this.refreshPods();
 
-    setInterval(() => this.refreshPods(), 1000);
-
-    // TODO - start a refresh timer
+    setInterval(() => this.refreshPods(), 1000); // TODO make interval configurable
   }
   refreshPods() {
-    const url = `${baseUrl}/getPods`;
+    const url = `${this.state.baseUrl}/getPods`;
     fetch(url)
       .then(result => result.json())
       .then(result => {
@@ -42,7 +40,7 @@ class App extends Component {
   }
   killPod = (pod) => {
     fetch(
-      `${baseUrl}/deletePod`, {
+      `${this.state.baseUrl}/deletePod`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
@@ -50,6 +48,9 @@ class App extends Component {
         body: JSON.stringify(pod),
       },
     );
+  }
+  updateBaseUrl = event =>{
+    this.setState({baseUrl: event.target.value});
   }
 
   render() {
@@ -59,6 +60,7 @@ class App extends Component {
           <h1 className="App-title">Virtual Kubelet - Web Provider UI</h1>
         </header>
         <div className="container">
+          <div>API Url: <input type="text" value={this.state.baseUrl} onChange={this.updateBaseUrl} /></div>
           <h2>Pods</h2>
           <button onClick={() => this.refreshPods()}>Refresh</button>
           <PodList pods={this.state.pods} selectHandler={this.showPod} />
