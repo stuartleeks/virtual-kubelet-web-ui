@@ -4,23 +4,25 @@ import './App.css';
 import PodList from './PodList'
 import PodDetail from './PodDetail'
 
+// TODO need to parameterise this/pull from config
+const baseUrl = "http://localhost:5000"
 class App extends Component {
   state = {
     pods: [],
     selectedPod: null
   };
   componentDidMount() {
-    // TODO need to parameterise this/pull from config
     this.refreshPods();
+
+    setInterval(() => this.refreshPods(), 1000);
 
     // TODO - start a refresh timer
   }
   refreshPods() {
-    const url = "http://localhost:5000/getPods";
+    const url = `${baseUrl}/getPods`;
     fetch(url)
       .then(result => result.json())
       .then(result => {
-        console.log(result);
         let newState = { pods: result };
         let selectedPod = this.state.selectedPod;
         if (selectedPod !== null) {
@@ -40,7 +42,7 @@ class App extends Component {
   }
   killPod = (pod) => {
     fetch(
-      "http://localhost:5000/deletePod", {
+      `${baseUrl}/deletePod`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'

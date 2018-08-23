@@ -19,10 +19,9 @@ const TableBody = props => {
         return (
             <tr key={index}>
                 <td>{pod.metadata.namespace}</td>
-                <td><a href="#" onClick={() => props.selectHandler(pod.metadata.namespace, pod.metadata.name)}>{pod.metadata.name}</a></td>
+                <td><button className="link-button" onClick={() => props.selectHandler(pod.metadata.namespace, pod.metadata.name)}>{pod.metadata.name}</button></td>
                 <td>{pod.status.phase}</td>
                 <td>{pod.spec.containers.length}</td>
-                {/* <td><button onClick={() => props.removePerson(index)}>Delete</button></td> */}
             </tr>
         );
     });
