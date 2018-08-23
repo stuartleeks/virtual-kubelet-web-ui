@@ -8,6 +8,7 @@ import PodDetail from './PodDetail'
 class App extends Component {
   state = {
     baseUrl : "http://localhost:5000",
+    error: null,
     pods: [],
     selectedPod: null
   };
@@ -21,7 +22,7 @@ class App extends Component {
     fetch(url)
       .then(result => result.json())
       .then(result => {
-        let newState = { pods: result };
+        let newState = { pods: result,  error: null};
         let selectedPod = this.state.selectedPod;
         if (selectedPod !== null) {
           // check if selectedPod is still in the pod list and clear if not
@@ -32,6 +33,9 @@ class App extends Component {
         }
 
         this.setState(newState);
+      })
+      .catch(error =>{
+          this.setState({pods: [], error: error.message});
       });
   }
   showPod = (namespace, podname) => {
@@ -61,6 +65,7 @@ class App extends Component {
         </header>
         <div className="container">
           <div>API Url: <input type="text" value={this.state.baseUrl} onChange={this.updateBaseUrl} /></div>
+          <div className="error">{this.state.error}</div>
           <h2>Pods</h2>
           <button onClick={() => this.refreshPods()}>Refresh</button>
           <PodList pods={this.state.pods} selectHandler={this.showPod} />
