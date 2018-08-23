@@ -18,8 +18,22 @@
   font-size: large;
 }
 
-.selectedPod .title{
+.selected-pod{
+  border-color: grey;
+  border-width: thick;
+  border-style: solid;
+  padding:1em;
+}
+.selected-pod .title{
   font-weight: bold;
   display: inline-block;
   width: 10em;
+}
+
+.pod-container-list{
+  border-color: grey;
+  border-width: thin;
+  border-style: solid;
+  margin-top:1em;
+  padding: 1em;
 }
