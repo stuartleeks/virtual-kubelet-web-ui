@@ -21,7 +21,17 @@ class App extends Component {
       .then(result => result.json())
       .then(result => {
         console.log(result);
-        this.setState({ pods: result, selectedPod: null });
+        let newState = { pods: result };
+        let selectedPod = this.state.selectedPod;
+        if (selectedPod !== null) {
+          // check if selectedPod is still in the pod list and clear if not
+          var matches = newState.pods.filter((pod, index) => pod.metadata.namespace === selectedPod.metadata.namespace && pod.metadata.name === selectedPod.metadata.name);
+          if (matches.length === 0) {
+            newState.selectedPod = null;
+          }
+        }
+
+        this.setState(newState);
       });
   }
   showPod = (namespace, podname) => {
