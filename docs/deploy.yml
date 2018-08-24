@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: virtual-kubelet-web
+  labels:
+    run: virtual-kubelet-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: virtual-kubelet-web
+  template:
+    metadata:
+      labels:
+        run: virtual-kubelet-web
+    spec:
+      containers:
+        - name: webapi
+          image: stuartleeks/vk-web-mock:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000              
+        - name: webui
+          image: stuartleeks/vk-web-ui:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80         
+        - name: virtualkubelet
+          image: stuartleeks/virtual-kubelet
+          imagePullPolicy: Always
+          env:
+            - name: WEB_ENDPOINT_URL
+              value: http://localhost:5000
+          command: ["virtual-kubelet"]
+          args: ["--provider", "web"]
