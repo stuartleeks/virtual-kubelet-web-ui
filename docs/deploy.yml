@@ -1,3 +1,76 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+ name: default
+roleRef:
+ apiGroup: rbac.authorization.k8s.io
+ kind: ClusterRole
+ name: cluster-admin
+subjects:
+ - kind: ServiceAccount
+   name: default
+   namespace: default
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webui-config
+data:
+    nginx.conf: |-
+      user  nginx; 
+      worker_processes  1; 
+
+      error_log  /var/log/nginx/error.log warn; 
+      pid        /var/run/nginx.pid; 
+
+      events { 
+          worker_connections  1024; 
+      } 
+        
+      http { 
+          include       /etc/nginx/mime.types; 
+          default_type  application/octet-stream; 
+        
+          log_format  main  '$remote_addr - $remote_user [$time_local] "$request" ' 
+                            '$status $body_bytes_sent "$http_referer" ' 
+                            '"$http_user_agent" "$http_x_forwarded_for"'; 
+        
+          access_log  /var/log/nginx/access.log  main; 
+      
+          sendfile        on; 
+        
+          keepalive_timeout  65; 
+        
+          server {
+              listen       80;
+              server_name  localhost;
+
+              location / {
+                  root   /usr/share/nginx/html;
+                  index  index.html index.htm;
+              }
+
+              # redirect server error pages to the static page /50x.html
+              #
+              error_page   500 502 503 504  /50x.html;
+              location = /50x.html {
+                  root   /usr/share/nginx/html;
+              }
+
+              # Pass /api through to the API endpoint (port 3000)
+              # TODO parameterise this in helm chart
+              location /api/ {
+                  proxy_pass     http://127.0.0.1:5000/;
+                  proxy_redirect false;
+              }
+
+          }
+
+      } 
+
+---
+
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -25,6 +98,10 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 80         
+          volumeMounts:
+            - name: webui-nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
         - name: virtualkubelet
           image: stuartleeks/virtual-kubelet
           imagePullPolicy: Always
@@ -33,3 +110,24 @@ spec:
               value: http://localhost:5000
           command: ["virtual-kubelet"]
           args: ["--provider", "web"]
+      volumes:
+        - name: webui-nginx-config
+          configMap:
+            name: webui-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: virtual-kubelet-web
+  name: vk-web
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: virtual-kubelet-web
+  sessionAffinity: None
+  type: NodePort
