@@ -7,12 +7,15 @@ import PodDetail from './PodDetail'
 // TODO need to parameterise this/pull from config
 class App extends Component {
   state = {
-    baseUrl : "http://localhost:5000",
+    baseUrl : "",
     error: null,
     pods: [],
     selectedPod: null
   };
   componentDidMount() {
+    let rootElt = document.getElementById("root");
+    let baseUrl = rootElt.attributes["data-api-url"].value;
+    this.setState({baseUrl: baseUrl});
     this.refreshPods();
 
     setInterval(() => this.refreshPods(), 1000); // TODO make interval configurable
