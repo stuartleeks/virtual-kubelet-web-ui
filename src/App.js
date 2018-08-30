@@ -38,7 +38,7 @@ class App extends Component {
         this.setState(newState);
       })
       .catch(error => {
-        this.setState({ pods: [], error: error.message });
+        this.setState({ pods: [], error: `${(new Date()).toISOString()}: ${error.message}` });
       });
   }
   showPod = (namespace, podname) => {
