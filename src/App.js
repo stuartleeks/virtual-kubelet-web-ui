@@ -69,7 +69,7 @@ class App extends Component {
     }
     fetch(
       `${this.state.baseUrl}/updatePod`, {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
